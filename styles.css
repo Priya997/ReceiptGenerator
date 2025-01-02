@@ -1,0 +1,91 @@
+/* styles.css */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    height: 100vh;
+}
+
+.receipt {
+    width: 311px;
+    height: 811px;
+    background: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid #ccc;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo {
+    width: 140px;
+    height: 160px;
+    margin: 0 auto 0px;
+}
+
+.header h1 {
+    font-size: 16px; /* Adjusted font size */
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+.header p {
+    font-size: 13px; /* Corrected font size */
+    margin: 0 0; /* Reduced margin for tighter alignment */
+    line-height: 1;
+    font-weight: bold;
+    text-align: center;
+}
+
+.divider {
+    border: 1px dashed #000;
+    margin: 10px 0;
+}
+
+.details, .product-details {
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.details p, .product-details p {
+    display: flex;
+    /* justify-content: space-between; */
+    margin: 0 0;
+    font-weight: bold;
+}
+
+.details span, .product-details span {
+    font-weight: bold;
+    text-align: left;
+}
+
+.footer {
+    font-size: 14px; /* Increased font size for bold effect */
+    line-height: 1.2;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 1px; /* To mimic the screenshot text style */
+}
+
+.footer p {
+    margin: 5px 0;
+}
+
+.watermark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 25px; /* Fixed width for watermark */
+    height: 100%; /* Full height of the receipt */
+    opacity: 0.5; /* Set transparency */
+    background: url('watermark.png') repeat-y; /* Repeat watermark vertically */
+    background-size: contain; /* Ensure watermark fits within its container */
+    pointer-events: none; /* Prevent interaction with watermark */
+}

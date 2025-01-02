@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Receipt Generator</title>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    </head>
+<body>
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 50px; width: 100%; margin-top: 20px;">
+        <div style="width: 350px; padding: 20px; background: #fff; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+            <h1 style="text-align: center; font-size: 18px; margin-bottom: 20px;">Fuel Receipt Generator</h1>
+            <form id="receiptForm" style="display: flex; flex-direction: column; gap: 10px;">
+                <label for="logo" style="font-weight: bold;">Select Logo:</label>
+                <select id="logo" name="logo" autocomplete="off" onchange="updateReceipt()" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+                    <option value="hp_logo.png" selected>HP Logo (Default)</option>
+                    <option value="bpl_logo.png">BPL Logo</option>
+                </select>
+
+                <label for="cin" style="font-weight: bold;">CIN Number:</label>
+                <input type="text" id="cin" name="cin" autocomplete="off" oninput="updateReceipt()" value="M43010GH195260I008931" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="address" style="font-weight: bold;">Address:</label>
+                <textarea id="address" name="address" autocomplete="street-address" rows="4" oninput="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">HP Centre Petrol Pump
+Opposite Vidhyadhar Nagar Police Station
+Sector 6 Rd Sector 2, Sector 6, Prithviraj Nagar (B Sector)
+Jaipur, Rajasthan 302039</textarea>
+
+                <label for="customerName" style="font-weight: bold;">Customer Name:</label>
+                <input type="text" id="customerName" name="customerName" autocomplete="name" oninput="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="dateTimeInput" style="font-weight: bold;">Date & Time:</label>
+                <input type="datetime-local" id="dateTimeInput" name="dateTimeInput" autocomplete="off" onchange="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="invoice" style="font-weight: bold;">Invoice Number:</label>
+                <input type="text" id="invoice" name="invoice" autocomplete="off" oninput="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="vehicleType" style="font-weight: bold;">Vehicle Type:</label>
+                <select id="vehicleType" name="vehicleType" autocomplete="off" onchange="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+                    <option value="Diesel">Diesel</option>
+                    <option value="Petrol">Petrol</option>
+                </select>
+
+                <label for="vehicleNo" style="font-weight: bold;">Vehicle Number:</label>
+                <input type="text" id="vehicleNo" name="vehicleNo" autocomplete="off" oninput="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="paymentMode" style="font-weight: bold;">Payment Mode:</label>
+                <select id="paymentMode" name="paymentMode" autocomplete="off" onchange="updateReceipt()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="UPI">UPI</option>
+                </select>
+
+                <label for="petrolPrice" style="font-weight: bold;">Petrol/Diesel Price (Per LTR):</label>
+                <input type="number" step="0.01" id="petrolPrice" name="petrolPrice" autocomplete="off" oninput="calculateVolume()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="amount" style="font-weight: bold;">Amount (Rs.):</label>
+                <input type="number" id="amount" name="amount" autocomplete="off" oninput="calculateVolume()" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+
+                <label for="volume" style="font-weight: bold;">Volume (LTR):</label>
+                <input type="number" step="0.01" id="volume" name="volume" autocomplete="off" readonly style="padding: 5px; border: 1px solid #ccc; border-radius: 3px; background: #f0f0f0;">
+
+                <button type="button" onclick="downloadPDF()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Download as PDF
+                </button>
+            </form>
+        </div>
+
+        <!-- Receipt -->
+        <div class="receipt" id="receipt">
+            <div class="watermark"></div>
+            <div class="header">
+                <img src="hp_logo.png" alt="HP Logo" class="logo" id="logoDisplay">
+                <h1>WELCOME!!!</h1>
+                <p><strong>CIN NO</strong></p>
+                <p id="cinDisplay">M43010GH195260I008931</p>
+                <p id="addressDisplay">HP Centre Petrol Pump<br>
+                    Opposite Vidhyadhar Nagar Police Station<br>
+                    Sector 6 Rd Sector 2, Sector 6, Prithviraj Nagar (B Sector)<br>
+                    Jaipur, Rajasthan 302039</p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="details">
+                <p><strong>Date/Time:</strong> <span id="dateTime"></span></p>
+                <p><strong>CUSTOMER NAME# :</strong> <span id="customerNameDisplay"></span></p>
+                <p><strong>INV# :</strong> <span id="invoiceDisplay"></span></p>
+                <p><strong>VEH TYPE# :</strong> <span id="vehicleTypeDisplay"></span></p>
+                <p><strong>VEH NO# :</strong> <span id="vehicleNoDisplay"></span></p>
+                <p><strong>MODE# :</strong> <span id="paymentModeDisplay"></span></p>
+            </div>
+            <hr class="divider">
+
+            <div class="product-details">
+                <p><strong>PRODUCT:</strong> <span id="productDisplay"></span></p>
+                <p><strong>RATE/LTR:</strong> <span id="rateDisplay"></span></p>
+                <p><strong>AMOUNT (Rs.):</strong> <span id="amountDisplay"></span></p>
+                <p><strong>VOLUME (LTR.):</strong> <span id="volumeDisplay"></span></p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="footer">
+                <p><strong>SAVE FUEL YAANI</strong><br><strong>SAVE MONEY!!</strong></p>
+                <p><strong>THANK YOU!!</strong></p>
+                <p><strong>THANKS FOR FUELING WITH US.<br>YOU CAN NOW CALL US ON</strong></p>
+                <p><strong>1800 22 6344 (TOLL-FREE)</strong><br><strong>FOR QUERIES/COMPLAINTS.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Realtime updates
+        function updateReceipt() {
+            document.getElementById("customerNameDisplay").textContent = document.getElementById("customerName").value;
+            document.getElementById("invoiceDisplay").textContent = document.getElementById("invoice").value;
+            document.getElementById("vehicleTypeDisplay").textContent = document.getElementById("vehicleType").value;
+            document.getElementById("vehicleNoDisplay").textContent = document.getElementById("vehicleNo").value;
+            document.getElementById("paymentModeDisplay").textContent = document.getElementById("paymentMode").value;
+            document.getElementById("productDisplay").textContent = document.getElementById("vehicleType").value;
+            document.getElementById("cinDisplay").textContent = document.getElementById("cin").value;
+            document.getElementById("addressDisplay").innerHTML = document.getElementById("address").value.replace(/\n/g, "<br>");
+            document.getElementById("logoDisplay").src = document.getElementById("logo").value;
+
+            const dateTimeInput = document.getElementById("dateTimeInput").value;
+            document.getElementById("dateTime").textContent = dateTimeInput ? new Date(dateTimeInput).toLocaleString() : "";
+        }
+
+        // Calculate volume dynamically
+        function calculateVolume() {
+            const petrolPrice = parseFloat(document.getElementById("petrolPrice").value) || 1;
+            const amount = parseFloat(document.getElementById("amount").value) || 0;
+            const volume = amount / petrolPrice;
+            document.getElementById("volume").value = volume.toFixed(2);
+            document.getElementById("volumeDisplay").textContent = `${volume.toFixed(2)} lt`;
+            document.getElementById("rateDisplay").textContent = `Rs.${petrolPrice.toFixed(2)}`;
+            document.getElementById("amountDisplay").textContent = `Rs.${amount.toFixed(2)}`;
+        }
+
+        // Download receipt as PDF
+        function downloadPDF() {
+            const receipt = document.getElementById("receipt"); // Use the original receipt
+            const options = {
+                margin: 1,
+                filename: 'receipt.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true }, // Ensures images are captured
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(receipt).set(options).save();
+        }
+
+        // Set default logo and date/time
+        window.onload = function () {
+            const now = new Date().toISOString().slice(0, 16); // Default current date/time for input
+            document.getElementById("dateTimeInput").value = now;
+            updateReceipt();
+        };
+    </script>
+</body>
+</html>
